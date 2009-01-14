@@ -479,7 +479,8 @@ class File_Mogile
                                 CURLOPT_RETURNTRANSFER => true,
                                 CURLOPT_HTTPHEADER => array('Expect: '),
                                ));
-        $curlResult = curl_exec($ch);
+
+        $curlResult = $this->curlExec($ch);
 
         fclose($fin);
 
@@ -499,6 +500,18 @@ class File_Mogile
                               'fid' => $response['fid'],
                               'path' => urldecode($response['path']),
                              ));
+    }
+
+    /**
+     * curlExec 
+     * 
+     * @param resource $ch Curl resource created via curl_init()
+     * 
+     * @return mixed result of curl_exec()
+     */
+    protected function curlExec($ch)
+    {
+        return curl_exec($ch);
     }
 
     /**
