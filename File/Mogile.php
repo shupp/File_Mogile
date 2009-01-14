@@ -91,13 +91,13 @@ class File_Mogile
             foreach ($options as $name => $value) {
                 switch ($name) {
                 case 'socketTimeout':
-                    $socketTimeout = floatval($value);
+                    self::$socketTimeout = floatval($value);
                     break;
                 case 'streamTimeout':
-                    $streamTimeout = floatval($value);
+                    self::$streamTimeout = floatval($value);
                     break;
                 case 'commandTimeout':
-                    $commandTimeout = intval($value);
+                    self::$commandTimeout = intval($value);
                     break;
                 default:
                     throw new File_Mogile_Exception('Unrecognized option');
@@ -112,30 +112,62 @@ class File_Mogile
             $host = explode(':', $host, 2);
             $ip   = reset($host);
             $port = next($host);
+            $port = (false === $port) ? 7001 : $port;
 
-            if (false === $port) {
-                $port = 7001;
-            }
-
-            $this->_socket = fsockopen($ip, $port, $errorNumber, $error,
-                                       self::$socketTimeout);
+            $this->socketConnect($ip,
+                                 $port,
+                                 $errorNumber,
+                                 $error);
 
             if ($this->_socket) {
-                // Currently deactivated, as we found it isn't needed.
-                /*
-                $seconds = intval(self::$streamTimeout);
-                $microseconds = intval(1000000 *
-                                       (self::$streamTimeout - $seconds));
-                stream_set_timeout($this->_socket, 0,
-                                   $seconds, $microseconds);
-                */
                 break;
             }
         }
 
         if (!$this->_socket) {
-            throw new File_Mogile_Exception('Unable to connect to tracker');
+            throw new File_Mogile_Exception(
+                'Unable to connect to tracker: ' . $errorNumber . ', ' . $error
+            );
         }
+    }
+
+    /**
+     * Make a socket connection via fsockopen.  Abstracted for testing.
+     * 
+     * @param mixed $ip           Tracker IP address
+     * @param mixed $port         Tracker Port number
+     * @param mixed &$errorNumber Error Number Variable
+     * @param mixed &$error       Error Message Variable
+     * 
+     * @return void
+     */
+    protected function socketConnect($ip, $port, &$errorNumber, &$error)
+    {
+        $this->_socket = fsockopen($ip, $port, $errorNumber, $error,
+                                   self::$socketTimeout);
+    }
+
+    /**
+     * Write a command to the socket.  Abstracted for testing.
+     * 
+     * @param string $command Command, which should include a trailing \n
+     * 
+     * @return mixed return of fwrite()
+     */
+    protected function socketWrite($command)
+    {
+        return fwrite($this->_socket, $command);
+    }
+
+    /**
+     * Read from $this->_socket() via fgets().  Abstracted
+     * for testing.
+     * 
+     * @return void
+     */
+    protected function socketRead()
+    {
+        return fgets($this->_socket);
     }
 
     /**
@@ -167,11 +199,11 @@ class File_Mogile
             $command .= ' ' . implode('&', $params);
         }
 
-        if (false === fwrite($this->_socket, $command . "\n")) {
+        if (false === $this->socketWrite($command . "\n")) {
             throw new File_Mogile_Exception('Error writing command');
         }
 
-        $line = fgets($this->_socket);
+        $line = $this->socketRead();
         if (false === $line) {
             throw new File_Mogile_Exception('Error reading response');
         }
