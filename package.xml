@@ -18,10 +18,16 @@
         <email>sbw@sbw.org</email>
         <active>yes</active>
     </lead>
-    <date>2008-03-31</date>
+    <lead>
+        <name>Bill Shupp</name>
+        <user>shupp</user>
+        <email>hostmaster@shupp.org</email>
+        <active>yes</active>
+    </lead>
+    <date>2009-01-13</date>
     <version>
-        <release>0.0.7</release>
-        <api>0.0.7</api>
+        <release>0.1.0</release>
+        <api>0.1.0</api>
     </version>
     <stability>
         <release>alpha</release>
@@ -41,6 +47,10 @@
                           role="php" />
                 </dir>
             </dir>
+            <dir name="tests">
+                <file name="File_Mogile_Basic.phpt"
+                      role="test" />
+            </dir>
         </dir>
     </contents>
     <dependencies>
@@ -58,6 +68,9 @@
             </package>
             <extension>
                 <name>curl</name>
+            </extension>
+            <extension>
+                <name>mbstring</name>
             </extension>
         </required>
     </dependencies>

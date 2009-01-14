@@ -10,9 +10,7 @@
  *
  * LICENSE: This source file is subject to the New BSD license that is 
  * available through the world-wide-web at the following URI:
- * http://www.opensource.org/licenses/bsd-license.php. If you did not receive  
- * a copy of the New BSD License and are unable to obtain it through the web, 
- * please send a note to license@php.net so we can mail you a copy immediately.
+ * http://www.opensource.org/licenses/bsd-license.php.
  *
  * @category  File
  * @package   File_Mogile
@@ -26,7 +24,9 @@
 require_once 'PEAR/Exception.php';
 
 /**
- * Services_Digg_Exception
+ * File_Mogile_Exception
+ *
+ * Exception handler for File_Mogile.
  *
  * @category File
  * @package  File_Mogile

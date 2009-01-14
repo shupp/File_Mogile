@@ -10,9 +10,7 @@
  *
  * LICENSE: This source file is subject to the New BSD license that is 
  * available through the world-wide-web at the following URI:
- * http://www.opensource.org/licenses/bsd-license.php. If you did not receive  
- * a copy of the New BSD License and are unable to obtain it through the web, 
- * please send a note to license@php.net so we can mail you a copy immediately.
+ * http://www.opensource.org/licenses/bsd-license.php
  *
  * @category  File
  * @package   File_Mogile
@@ -27,7 +25,11 @@ require_once 'Validate.php';
 require_once 'File/Mogile/Exception.php';
 
 /**
- * File_Mogile
+ * An interface for accessing MogileFS.
+ *
+ * MogileFS is an open source distributed filesystem. MogileFS can be 
+ * configured to provide high capacity, high availability, or a 
+ * combination of both, as required by various classes of files.
  *
  * @category File
  * @package  File_Mogile
@@ -134,16 +136,6 @@ class File_Mogile
         if (!$this->_socket) {
             throw new File_Mogile_Exception('Unable to connect to tracker');
         }
-    }
-
-    /**
-     * Destructor, closes socket.
-     *
-     * @throws File_Mogile_Exception
-     */
-    public function __destruct()
-    {
-        fclose($this->_socket);
     }
 
     /**
@@ -506,6 +498,18 @@ class File_Mogile
     public function storeData($key, $class, $data)
     {
         $this->_store($key, $class, $data, false);
+    }
+
+    /**
+     * Destructor, closes socket.
+     *
+     * @return void
+     */
+    public function __destruct()
+    {
+        if ($this->_socket !== false) {
+            fclose($this->_socket);
+        }
     }
 }
 
