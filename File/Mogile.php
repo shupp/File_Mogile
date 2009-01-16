@@ -76,7 +76,14 @@ class File_Mogile
      */
     private $_socket = false;
 
-    /**
+     /**
+     * Tracker hosts.
+     * 
+     * @var array
+     */
+    protected $hosts = array();
+
+   /**
      * Constructor.
      *
      * @param array  $hosts   Array of trackers as 'hostname:port'
@@ -108,19 +115,33 @@ class File_Mogile
         $this->_domain = $domain;
 
         shuffle($hosts);
-        foreach ($hosts as $host) {
+        $this->hosts = $hosts;
+
+        $this->connect();
+   }
+
+    /**
+     * Make a connection to a random host
+     * 
+     * @throws File_Mogile_Exception if no tracker connections succeed
+     * @return void
+     */
+    public function connect()
+    {
+        if ($this->_socket) {
+            return;
+        }
+
+        foreach ($this->hosts as $host) {
             $host = explode(':', $host, 2);
             $ip   = reset($host);
             $port = next($host);
             $port = (false === $port) ? 7001 : $port;
 
-            $this->socketConnect($ip,
-                                 $port,
-                                 $errorNumber,
-                                 $error);
+            $this->_socket = $this->socketConnect($ip, $port, $errorNumber, $error);
 
             if ($this->_socket) {
-                break;
+                return;
             }
         }
 
@@ -143,8 +164,8 @@ class File_Mogile
      */
     protected function socketConnect($ip, $port, &$errorNumber, &$error)
     {
-        $this->_socket = fsockopen($ip, $port, $errorNumber, $error,
-                                   self::$socketTimeout);
+        return fsockopen($ip, $port, $errorNumber, $error,
+                         self::$socketTimeout);
     }
 
     /**
@@ -168,6 +189,18 @@ class File_Mogile
     protected function socketRead()
     {
         return fgets($this->_socket);
+    }
+
+    /**
+     * Close the local socket if it's open
+     * 
+     * @return void
+     */
+    protected function socketClose()
+    {
+        if ($this->_socket !== false) {
+            fclose($this->_socket);
+        }
     }
 
     /**
@@ -552,9 +585,7 @@ class File_Mogile
      */
     public function __destruct()
     {
-        if ($this->_socket !== false) {
-            fclose($this->_socket);
-        }
+        $this->socketClose();
     }
 }
 
