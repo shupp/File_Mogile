@@ -49,7 +49,15 @@ class File_MogileTest extends PHPUnit_Framework_TestCase
                                'socketConnect',
                                'socketRead',
                                'socketWrite',
-                               'socketClose');
+                               'socketClose',
+                               'sendReproxyHeader');
+
+    /**
+     * Test file data contents
+     * 
+     * @var string
+     */
+    protected $fileData = "Test Text\n";
 
     /**
      * @var File_Mogile
@@ -122,7 +130,7 @@ class File_MogileTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test getDomains()
+     * Test GET_DOMAINS
      *
      * @return void
      */
@@ -138,7 +146,7 @@ class File_MogileTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test get paths
+     * Test GET_PATHS
      *
      * @return void
      */
@@ -156,51 +164,80 @@ class File_MogileTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @todo Implement testDelete().
+     * Test DELETE
+     * 
      * @return void
      */
     public function testDelete()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
+        $response = 'OK ';
+        $expected = null;
+        $this->object->expects($this->any())
+                     ->method('socketRead')
+                     ->will($this->returnValue($response));
+        $this->assertSame($expected, $this->object->delete('somekey'));
     }
 
     /**
-     * @todo Implement testRename().
+     * Test RENAME
+     *
      * @return void
      */
     public function testRename()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
+        $response = 'OK ';
+        $expected = null;
+        $this->object->expects($this->any())
+                     ->method('socketRead')
+                     ->will($this->returnValue($response));
+        $this->assertSame($expected, $this->object->rename('from', 'to'));
     }
 
     /**
-     * @todo Implement testListKeys().
+     * Test LIST_KEYS
+     * 
      * @return void
      */
     public function testListKeys()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
+        $nextAfter = '/thumb/2/o';
+        $limit     = 2;
+        $response  = "OK key_1=/thumb/3/o&key_2=/thumb/4/o&key_count=2&next_after=/thumb/4/o";
+        $expected  = array('/thumb/4/o', array('/thumb/3/o', '/thumb/4/o'));
+        $this->object->expects($this->any())
+                     ->method('socketRead')
+                     ->will($this->returnValue($response));
+        $this->assertSame($expected, $this->object->listKeys('',
+                                                             $nextAfter,
+                                                             $limit));
     }
 
     /**
-     * @todo Implement testReproxy().
+     * Test reproxy() success
+     * 
      * @return void
      */
     public function testReproxy()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
+        $response = "OK path2=http://127.0.0.1:7500/dev1/0/000/435/0000435316.fid&path1=http://127.0.0.1:7500/dev2/0/000/435/0000435316.fid&paths=2";
+        $paths    = array('path1' => 'http://example.com/foo',
+                          'path2' => 'http://example.com/bar');
+        $this->object->expects($this->any())
+                     ->method('socketRead')
+                     ->will($this->returnValue($response));
+        $this->assertNull($this->object->reproxy('destination'));
+        $this->assertNull($this->object->reproxy($paths));
+    }
+
+    /**
+     * Test invalid destination argument to reproxy()
+     * 
+     * @expectedException File_Mogile_Exception
+     * @return void
+     */
+    public function testReproxyFail()
+    {
+        $this->assertNull($this->object->reproxy(5));
     }
 
     /**
@@ -209,22 +246,98 @@ class File_MogileTest extends PHPUnit_Framework_TestCase
      */
     public function testGetFileData()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
+        $filename2 = $this->getTestDataFile();
+        $filename1 = $filename2 . '1';
+        $response  = "OK path1=$filename1&path2=$filename2&paths=2";
+
+        $this->object->expects($this->any())
+                     ->method('socketRead')
+                     ->will($this->returnValue($response));
+
+        // Suppress a warning for the invalid file
+        $result = @$this->object->getFileData('key');
+        $this->assertSame($this->fileData, $result);
     }
 
     /**
-     * @todo Implement testPassthru().
+     * Test no valid paths
+     * 
+     * @expectedException File_Mogile_Exception
+     * @return void
+     */
+    public function testGetFileDataFail()
+    {
+        $filename = $this->getTestDataFile() . '1';
+        $response = "OK path1=$filename&paths=1";
+
+        $this->object->expects($this->any())
+                     ->method('socketRead')
+                     ->will($this->returnValue($response));
+
+        // Suppress a warning for the invalid file
+        $result = @$this->object->getFileData('key');
+    }
+
+    /**
+     * Test passthru()
+     * 
      * @return void
      */
     public function testPassthru()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
+        $filename = $this->getTestDataFile();
+        $response = "OK path1=$filename&paths=1";
+        $paths    = array($filename);
+
+        $this->object->expects($this->any())
+                     ->method('socketRead')
+                     ->will($this->returnValue($response));
+
+        foreach (array('key', $paths) as $arg) {
+            ob_start();
+            $this->object->passthru($arg);
+            $result = ob_get_contents();
+            ob_end_clean();
+            $this->assertSame($this->fileData, $result);
+        }
+    }
+
+    public function testPassthruFail()
+    {
+        $filename = $this->getTestDataFile() . '1';
+        $response = "OK path1=$filename&paths=1";
+
+        $this->object->expects($this->any())
+                     ->method('socketRead')
+                     ->will($this->returnValue($response));
+
+        // Test failure for fopen()
+        try {
+            ob_start();
+            @$this->object->passthru($filename);
+            $result = ob_get_contents();
+            // Should not get here
+            ob_end_clean();
+            $this->assertFalse(true);
+        } catch (File_Mogile_Exception $e) {
+        }
+
+        // Test invalid destination
+        try {
+            $this->object->passthru(1);
+            // Should not get here
+            $this->assertFalse(true);
+        } catch (File_Mogile_Exception $e) {
+        }
+    }
+    /**
+     * Helper function for determining test data file
+     * 
+     * @return string
+     */
+    protected function getTestDataFile()
+    {
+        return dirname(__FILE__) . DIRECTORY_SEPARATOR . 'testdata.txt';
     }
 
     /**
@@ -233,10 +346,29 @@ class File_MogileTest extends PHPUnit_Framework_TestCase
      */
     public function testPassthruFileData()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
+        $filename = $this->getTestDataFile();
+        $response = "OK path1=$filename&paths=1";
+
+        $this->object->expects($this->any())
+                     ->method('socketRead')
+                     ->will($this->returnValue($response));
+
+        ob_start();
+        $this->object->passthruFileData($filename);
+        $result = ob_get_contents();
+        ob_end_clean();
+        $this->assertSame($this->fileData, $result);
+    }
+
+    /**
+     * Test invalid argument to passthruFileData()
+     * 
+     * @expectedException File_Mogile_Exception
+     * @return void
+     */
+    public function testPassthruFileDataFail()
+    {
+        $this->object->passthruFileData(1);
     }
 
     /**

@@ -368,6 +368,7 @@ class File_Mogile
      *
      * @param mixed $destination The mogile key or array of URLs.
      *
+     * @throws File_Mogile_Exception on invalid $destination
      * @return void
      */
     public function reproxy($destination)
@@ -379,6 +380,18 @@ class File_Mogile
         } else {
             throw new File_Mogile_Exception('Invalid argument');
         }
+        $this->sendReproxyHeader($paths);
+    }
+
+    /**
+     * Sends the X-Reproxy-URL header and exists.  Abstracted for testing.
+     * 
+     * @param array $paths Array of paths
+     * 
+     * @return void
+     */
+    protected function sendReproxyHeader(array $paths)
+    {
         header('X-Reproxy-URL: ' . implode(' ', $paths));
         exit;
     }
