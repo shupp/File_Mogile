@@ -83,7 +83,7 @@ class File_Mogile
      */
     protected $hosts = array();
 
-    /**
+   /**
      * Constructor.
      *
      * @param array  $hosts   Array of trackers as 'hostname:port'
@@ -118,7 +118,7 @@ class File_Mogile
         $this->hosts = $hosts;
 
         $this->connect();
-    }
+   }
 
     /**
      * Make a connection to a random host
@@ -529,7 +529,7 @@ class File_Mogile
 
         fclose($fin);
 
-        if (!$curlResult) {
+        if ($curlResult === false) {
             $message = 'CURL: ' . curl_error($ch);
             curl_close($ch);
             throw new File_Mogile_Exception($message);
@@ -556,7 +556,10 @@ class File_Mogile
      */
     protected function curlExec($ch)
     {
-        return curl_exec($ch);
+        ob_start();
+        $result = curl_exec($ch);
+        ob_end_clean();
+        return $result;
     }
 
     /**
