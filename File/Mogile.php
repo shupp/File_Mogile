@@ -514,18 +514,17 @@ class File_Mogile
             $fsize = mb_strlen($data, '8bit');
         }
 
-        $ch = curl_init();
-        curl_setopt_array($ch,
-                          array(CURLOPT_PUT => true,
-                                CURLOPT_URL => $response['path'],
-                                CURLOPT_VERBOSE => 0,
-                                CURLOPT_INFILE => $fin,
-                                CURLOPT_INFILESIZE => $fsize,
-                                CURLOPT_TIMEOUT => self::$commandTimeout,
-                                CURLOPT_RETURNTRANSFER => true,
-                                CURLOPT_HTTPHEADER => array('Expect: '),
-                               ));
+        $options = array(CURLOPT_PUT            => true,
+                         CURLOPT_URL            => $response['path'],
+                         CURLOPT_VERBOSE        => 0,
+                         CURLOPT_INFILE         => $fin,
+                         CURLOPT_INFILESIZE     => $fsize,
+                         CURLOPT_TIMEOUT        => self::$commandTimeout,
+                         CURLOPT_RETURNTRANSFER => false,
+                         CURLOPT_HTTPHEADER     => array('Expect: '));
 
+        $ch = curl_init();
+        curl_setopt_array($ch, $options);
         $curlResult = $this->curlExec($ch);
 
         fclose($fin);
@@ -540,11 +539,11 @@ class File_Mogile
 
         $this->_request('CREATE_CLOSE',
                         array(
-                              'key' => $key,
+                              'key'   => $key,
                               'class' => $class,
                               'devid' => $response['devid'],
-                              'fid' => $response['fid'],
-                              'path' => urldecode($response['path']),
+                              'fid'   => $response['fid'],
+                              'path'  => urldecode($response['path']),
                              ));
     }
 

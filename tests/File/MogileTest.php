@@ -50,7 +50,8 @@ class File_MogileTest extends PHPUnit_Framework_TestCase
                                'socketRead',
                                'socketWrite',
                                'socketClose',
-                               'sendReproxyHeader');
+                               'sendReproxyHeader',
+                               'curlExec');
 
     /**
      * Test file data contents
@@ -146,6 +147,50 @@ class File_MogileTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test false result from socketWrite()
+     * 
+     * @expectedException File_Mogile_Exception
+     * @return void
+     */
+    public function testRequestFailSocketWrite()
+    {
+        $this->object->expects($this->any())
+                     ->method('socketWrite')
+                     ->will($this->returnValue(false));
+        $this->object->getDomains();
+    }
+
+    /**
+     * Test false result from socketRead()
+     * 
+     * @expectedException File_Mogile_Exception
+     * @return void
+     */
+    public function testRequestFailSocketRead()
+    {
+        $this->object->expects($this->any())
+                     ->method('socketRead')
+                     ->will($this->returnValue(false));
+        $this->object->getDomains();
+    }
+
+    /**
+     * Test ERR response from mogile
+     *
+     * @expectedException File_Mogile_Exception
+     * @return void
+     */
+    public function testRequestFailFromMogile()
+    {
+        $response = "ERR fobar";
+
+        $this->object->expects($this->any())
+                     ->method('socketRead')
+                     ->will($this->returnValue($response));
+        $this->object->getDomains();
+    }
+
+    /**
      * Test GET_PATHS
      *
      * @return void
@@ -213,6 +258,66 @@ class File_MogileTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test LIST_KEYS Failure, missign key_count
+     * 
+     * @expectedException File_Mogile_Exception
+     * @return void
+     */
+    public function testListKeysFailMissingKeyCount()
+    {
+        $nextAfter = '/thumb/2/o';
+        $limit     = 2;
+        $response  = "OK key_1=/thumb/3/o&key_2=/thumb/4/o&next_after=/thumb/4/o";
+        $expected  = array('/thumb/4/o', array('/thumb/3/o', '/thumb/4/o'));
+        $this->object->expects($this->any())
+                     ->method('socketRead')
+                     ->will($this->returnValue($response));
+        $this->assertSame($expected, $this->object->listKeys('',
+                                                             $nextAfter,
+                                                             $limit));
+    }
+
+    /**
+     * Test LIST_KEYS Failure, missign next_after
+     * 
+     * @expectedException File_Mogile_Exception
+     * @return void
+     */
+    public function testListKeysFailMissingNextAfter()
+    {
+        $nextAfter = '/thumb/2/o';
+        $limit     = 2;
+        $response  = "OK key_1=/thumb/3/o&key_2=/thumb/4/o&key_count=2";
+        $expected  = array('/thumb/4/o', array('/thumb/3/o', '/thumb/4/o'));
+        $this->object->expects($this->any())
+                     ->method('socketRead')
+                     ->will($this->returnValue($response));
+        $this->assertSame($expected, $this->object->listKeys('',
+                                                             $nextAfter,
+                                                             $limit));
+    }
+ 
+    /**
+     * Test LIST_KEYS Failure, incorrect key names in response
+     * 
+     * @expectedException File_Mogile_Exception
+     * @return void
+     */
+    public function testListKeysFailIncorrectKeyNames()
+    {
+        $nextAfter = '/thumb/2/o';
+        $limit     = 2;
+        $response  = "OK key_1=/thumb/3/o&key_3=/thumb/4/o&key_count=2&next_after=/thumb/4/o";
+        $expected  = array('/thumb/4/o', array('/thumb/3/o', '/thumb/4/o'));
+        $this->object->expects($this->any())
+                     ->method('socketRead')
+                     ->will($this->returnValue($response));
+        $this->assertSame($expected, $this->object->listKeys('',
+                                                             $nextAfter,
+                                                             $limit));
+    }
+
+    /**
      * Test reproxy() success
      * 
      * @return void
@@ -241,7 +346,8 @@ class File_MogileTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @todo Implement testGetFileData().
+     * Test getFileData() success
+     * 
      * @return void
      */
     public function testGetFileData()
@@ -302,6 +408,11 @@ class File_MogileTest extends PHPUnit_Framework_TestCase
         }
     }
 
+    /**
+     * Tests several passthru() failures
+     * 
+     * @return void
+     */
     public function testPassthruFail()
     {
         $filename = $this->getTestDataFile() . '1';
@@ -341,7 +452,8 @@ class File_MogileTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @todo Implement testPassthruFileData().
+     * Tests passthruFileData()
+     *
      * @return void
      */
     public function testPassthruFileData()
@@ -372,27 +484,106 @@ class File_MogileTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @todo Implement testStoreFile().
+     * Test storing a file
+     *
      * @return void
      */
     public function testStoreFile()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
+        $response = 'OK devid=2&fid=943794&path=http://127.0.0.1:7500/dev2/0/000/943/0000943794.fid';
+        $this->object->expects($this->any())
+                     ->method('socketRead')
+                     ->will($this->returnValue($response));
+        $this->object->expects($this->any())
+                     ->method('curlExec')
+                     ->will($this->returnValue(true));
+
+        $result = $this->object->storeFile('foobarkey',
+                                           'myclass',
+                                           $this->getTestDataFile());
+        $this->assertNull($result);
     }
 
     /**
-     * @todo Implement testStoreData().
+     * testStoreFileFailValidation 
+     * 
+     * @expectedException File_Mogile_Exception
+     * @return void
+     */
+    public function testStoreFileFailValidation()
+    {
+        $response = 'OK devid=2&fid=943794&path=http:/127.0.0.1:7500/dev2/0/000/943/0000943794.fid';
+        $this->object->expects($this->any())
+                     ->method('socketRead')
+                     ->will($this->returnValue($response));
+
+        $result = $this->object->storeFile('foobarkey',
+                                           'myclass',
+                                           $this->getTestDataFile());
+    }
+
+    /**
+     * Test missing file
+     * 
+     * @expectedException File_Mogile_Exception
+     * @return void
+     */
+    public function testStoreFileFailfopen()
+    {
+        $response = 'OK devid=2&fid=943794&path=http://127.0.0.1:7500/dev2/0/000/943/0000943794.fid';
+        $this->object->expects($this->any())
+                     ->method('socketRead')
+                     ->will($this->returnValue($response));
+        $this->object->expects($this->any())
+                     ->method('curlExec')
+                     ->will($this->returnValue(true));
+
+        $result = @$this->object->storeFile('foobarkey',
+                                            'myclass',
+                                            $this->getTestDataFile() . '1');
+    }
+
+    /**
+     * Test curl error
+     * 
+     * @expectedException File_Mogile_Exception
+     * @return void
+     */
+    public function testStoreFileFailCurl()
+    {
+        $response = 'OK devid=2&fid=943794&path=http://127.0.0.1:7500/dev2/0/000/943/0000943794.fid';
+        $this->object->expects($this->any())
+                     ->method('socketRead')
+                     ->will($this->returnValue($response));
+        $this->object->expects($this->any())
+                     ->method('curlExec')
+                     ->will($this->returnValue(false));
+
+        $result = $this->object->storeFile('foobarkey',
+                                            'myclass',
+                                            $this->getTestDataFile());
+    }
+
+    /**
+     * Tests storeData()
+     *
      * @return void
      */
     public function testStoreData()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
+        $response = 'OK devid=2&fid=943794&path=http://127.0.0.1:7500/dev2/0/000/943/0000943794.fid';
+        $this->object->expects($this->any())
+                     ->method('socketRead')
+                     ->will($this->returnValue($response));
+        $this->object->expects($this->any())
+                     ->method('curlExec')
+                     ->will($this->returnValue(true));
+
+        // Suppress warning from fopen()
+        $result = $this->object->storeData('foobarkey',
+                                           'myclass',
+                                           $this->fileData);
+        $this->assertNull($result);
     }
 }
 ?>

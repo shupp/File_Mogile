@@ -16,7 +16,7 @@
         <name>Steve Williams</name>
         <user>sbw</user>
         <email>sbw@sbw.org</email>
-        <active>yes</active>
+        <active>no</active>
     </lead>
     <lead>
         <name>Bill Shupp</name>
@@ -24,7 +24,7 @@
         <email>hostmaster@shupp.org</email>
         <active>yes</active>
     </lead>
-    <date>2009-01-13</date>
+    <date>2009-01-18</date>
     <version>
         <release>0.1.0</release>
         <api>0.1.0</api>
@@ -49,6 +49,10 @@
             </dir>
             <dir name="tests">
                 <file name="File_Mogile_Basic.phpt"
+                      role="test" />
+                <file name="File/MogileTest.php"
+                      role="test" />
+                <file name="File/testdata.txt"
                       role="test" />
             </dir>
         </dir>
