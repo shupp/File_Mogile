@@ -83,7 +83,7 @@ class File_Mogile
      */
     protected $hosts = array();
 
-   /**
+    /**
      * Constructor.
      *
      * @param array  $hosts   Array of trackers as 'hostname:port'
@@ -118,7 +118,7 @@ class File_Mogile
         $this->hosts = $hosts;
 
         $this->connect();
-   }
+    }
 
     /**
      * Make a connection to a random host
