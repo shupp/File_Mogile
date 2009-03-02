@@ -24,7 +24,7 @@
         <email>hostmaster@shupp.org</email>
         <active>yes</active>
     </lead>
-    <date>2009-01-18</date>
+    <date>2009-03-01</date>
     <version>
         <release>0.1.0</release>
         <api>0.1.0</api>
@@ -48,7 +48,9 @@
                 </dir>
             </dir>
             <dir name="tests">
-                <file name="File_Mogile_Basic.phpt"
+                <file name="phpt/File_Mogile_Basic.phpt"
+                      role="test" />
+                <file name="AllTests.php"
                       role="test" />
                 <file name="File/MogileTest.php"
                       role="test" />

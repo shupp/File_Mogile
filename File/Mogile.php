@@ -15,7 +15,7 @@
  * @category  File
  * @package   File_Mogile
  * @author    Steve Williams <sbw@sbw.org>
- * @copyright 2007 Digg.com, Inc.
+ * @copyright 2009 Digg.com, Inc.
  * @license   http://www.opensource.org/licenses/bsd-license.php BSD
  * @version   CVS: $Id:$
  * @link      http://pear.php.net/package/File_Mogile
@@ -83,7 +83,7 @@ class File_Mogile
      */
     protected $hosts = array();
 
-   /**
+    /**
      * Constructor.
      *
      * @param array  $hosts   Array of trackers as 'hostname:port'
@@ -118,7 +118,7 @@ class File_Mogile
         $this->hosts = $hosts;
 
         $this->connect();
-   }
+    }
 
     /**
      * Make a connection to a random host

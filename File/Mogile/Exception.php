@@ -15,7 +15,7 @@
  * @category  File
  * @package   File_Mogile
  * @author    Steve Williams <sbw@sbw.org>
- * @copyright 2007 Digg.com, Inc.
+ * @copyright 2009 Digg.com, Inc.
  * @license   http://www.opensource.org/licenses/bsd-license.php BSD
  * @version   CVS: $Id:$
  * @link      http://pear.php.net/package/File_Mogile
