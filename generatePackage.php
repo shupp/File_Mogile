@@ -23,8 +23,8 @@ $packagexml->setSummary('PHP interface to MogileFS');
 $packagexml->setDescription('An interface for accessing MogileFS.');
 
 $packagexml->setChannel('pear.php.net');
-$packagexml->setAPIVersion('0.1.0');
-$packagexml->setReleaseVersion('0.1.0');
+$packagexml->setAPIVersion('0.2.0');
+$packagexml->setReleaseVersion('0.2.0');
 
 $packagexml->setReleaseStability('alpha');
 

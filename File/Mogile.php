@@ -6,7 +6,7 @@
  * This API for MogileFS is derived from code written for Mediawiki by
  * Domas Mituzas and Jens Frank.  That work is used here by permission.
  *
- * PHP version 5.1.0+
+ * PHP version 5.2.0+
  *
  * LICENSE: This source file is subject to the New BSD license that is 
  * available through the world-wide-web at the following URI:
@@ -140,6 +140,18 @@ class File_Mogile
             $this->_socket = $this->socketConnect($ip, $port, $errorNumber, $error);
 
             if ($this->_socket) {
+                // Set stream timeout
+                $timeoutParts = explode('.', self::$streamTimeout);
+                if (is_array($timeoutParts) && count($timeoutParts) == 2) {
+                    $timeoutSeconds      = (int) $timeoutParts[0];
+                    $timeoutMicroSeconds = (int) $timeoutParts[1];
+                } else {
+                    $timeoutSeconds      = 1;
+                    $timeoutMicroSeconds = 0;
+                }
+                stream_set_timeout($this->_socket,
+                                   $timeoutSeconds,
+                                   $timeoutMicroSeconds);
                 return;
             }
         }
@@ -151,6 +163,7 @@ class File_Mogile
         }
     }
 
+    //@codeCoverageIgnoreStart
     /**
      * Make a socket connection via fsockopen.  Abstracted for testing.
      * 
@@ -201,6 +214,7 @@ class File_Mogile
             fclose($this->_socket);
         }
     }
+    //@codeCoverageIgnoreEnd
 
     /**
      * Issue Mogile command, return response.
