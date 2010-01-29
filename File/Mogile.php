@@ -21,7 +21,6 @@
  * @link      http://pear.php.net/package/File_Mogile
  */ 
 
-require_once 'Validate.php';
 require_once 'File/Mogile/Exception.php';
 
 /**
@@ -497,7 +496,7 @@ class File_Mogile
     {
         $response = $this->_request('CREATE_OPEN',
                                     array('key' => $key, 'class' => $class));
-        if (!Validate::uri($response['path'])) {
+        if (!filter_var($response['path'], FILTER_VALIDATE_URL)) {
             throw new File_Mogile_Exception('Unrecognized response from mogile');
         }
 

@@ -1,88 +1,101 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package packagerversion="1.4.2" 
-         version="2.0" 
-         xmlns="http://pear.php.net/dtd/package-2.0" 
-         xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" 
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-         xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0
-                             http://pear.php.net/dtd/tasks-1.0.xsd
-                             http://pear.php.net/dtd/package-2.0
-                             http://pear.php.net/dtd/package-2.0.xsd">
-    <name>File_Mogile</name>
+<package packagerversion="1.9.0" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0
+    http://pear.php.net/dtd/tasks-1.0.xsd
+    http://pear.php.net/dtd/package-2.0
+    http://pear.php.net/dtd/package-2.0.xsd">
+ <name>File_Mogile</name>
+ <channel>pear.php.net</channel>
+ <summary>PHP interface to MogileFS</summary>
+ <description>An interface for accessing MogileFS.</description>
+ <lead>
+  <name>Bill Shupp</name>
+  <user>shupp</user>
+  <email>shupp@php.net</email>
+  <active>yes</active>
+ </lead>
+ <lead>
+  <name>Rich Schumacher</name>
+  <user>richid</user>
+  <email>rich.schu@gmail.com</email>
+  <active>yes</active>
+ </lead>
+ <date>2010-01-29</date>
+ <time>10:18:04</time>
+ <version>
+  <release>0.1.0</release>
+  <api>0.1.0</api>
+ </version>
+ <stability>
+  <release>alpha</release>
+  <api>alpha</api>
+ </stability>
+ <license uri="http://www.opensource.org/licenses/bsd-license.php">New BSD License</license>
+ <notes>
+* Initial release
+ </notes>
+ <contents>
+  <dir baseinstalldir="/" name="/">
+   <dir name="File">
+    <dir name="Mogile">
+     <file name="Exception.php" role="php" />
+    </dir> <!-- /File/Mogile -->
+    <file name="Mogile.php" role="php" />
+   </dir> <!-- /File -->
+   <dir name="tests">
+    <dir name="File">
+     <file name="MogileTest.php" role="test" />
+     <file name="testdata.txt" role="test" />
+    </dir> <!-- /tests/File -->
+    <dir name="phpt">
+     <file name="File_Mogile_Basic.phpt" role="test" />
+    </dir> <!-- /tests/phpt -->
+    <file name="AllTests.php" role="test" />
+   </dir> <!-- /tests -->
+  </dir> <!-- / -->
+ </contents>
+ <dependencies>
+  <required>
+   <php>
+    <min>5.2.0</min>
+   </php>
+   <pearinstaller>
+    <min>1.4.0b1</min>
+   </pearinstaller>
+   <package>
+    <name>PEAR</name>
     <channel>pear.php.net</channel>
-    <summary>PHP interface to MogileFS</summary>
-    <description>An interface for accessing MogileFS.</description>
-    <lead>
-        <name>Steve Williams</name>
-        <user>sbw</user>
-        <email>sbw@sbw.org</email>
-        <active>no</active>
-    </lead>
-    <lead>
-        <name>Bill Shupp</name>
-        <user>shupp</user>
-        <email>hostmaster@shupp.org</email>
-        <active>yes</active>
-    </lead>
-    <date>2009-03-01</date>
-    <version>
-        <release>0.1.0</release>
-        <api>0.1.0</api>
-    </version>
-    <stability>
-        <release>alpha</release>
-        <api>alpha</api>
-    </stability>
-    <license uri="http://www.opensource.org/licenses/bsd-license.php">New BSD License</license>
-    <notes><![CDATA[
-        * Initial release.
-    ]]></notes>
-    <contents>
-        <dir name="/">
-            <dir name="File">
-                <file name="Mogile.php"
-                      role="php" />
-                <dir name="Mogile">
-                    <file name="Exception.php"
-                          role="php" />
-                </dir>
-            </dir>
-            <dir name="tests">
-                <file name="phpt/File_Mogile_Basic.phpt"
-                      role="test" />
-                <file name="AllTests.php"
-                      role="test" />
-                <file name="File/MogileTest.php"
-                      role="test" />
-                <file name="File/testdata.txt"
-                      role="test" />
-            </dir>
-        </dir>
-    </contents>
-    <dependencies>
-        <required>
-            <php>
-                <min>5.1.0</min>
-            </php>
-            <pearinstaller>
-                <min>1.4.0b1</min>
-            </pearinstaller>
-            <package>
-               <name>Validate</name>
-               <channel>pear.php.net</channel>
-               <min>0.8.1</min>
-            </package>
-            <extension>
-                <name>curl</name>
-            </extension>
-            <extension>
-                <name>mbstring</name>
-            </extension>
-        </required>
-    </dependencies>
-    <phprelease />
-    <changelog>
-        <release>
-        </release>
-    </changelog>
+    <min>1.4.0</min>
+   </package>
+   <extension>
+    <name>curl</name>
+   </extension>
+   <extension>
+    <name>mbstring</name>
+   </extension>
+   <extension>
+    <name>filter</name>
+   </extension>
+   <extension>
+    <name>date</name>
+   </extension>
+  </required>
+ </dependencies>
+ <phprelease />
+ <changelog>
+  <release>
+   <version>
+    <release>0.1.0</release>
+    <api>0.1.0</api>
+   </version>
+   <stability>
+    <release>alpha</release>
+    <api>alpha</api>
+   </stability>
+   <date>2010-01-29</date>
+   <license uri="http://www.opensource.org/licenses/bsd-license.php">New BSD License</license>
+   <notes>
+* Initial release
+   </notes>
+  </release>
+ </changelog>
 </package>
