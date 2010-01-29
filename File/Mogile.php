@@ -200,7 +200,12 @@ class File_Mogile
      */
     protected function socketRead()
     {
-        return fgets($this->_socket);
+        $result = fgets($this->_socket);
+        $info   = stream_get_meta_data($this->_socket);
+        if (!empty($info['timed_out'])) {
+            throw new File_Mogile_Exception('Socket read timed out');
+        }
+        return $result;
     }
 
     /**
