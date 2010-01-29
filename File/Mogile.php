@@ -15,7 +15,8 @@
  * @category  File
  * @package   File_Mogile
  * @author    Steve Williams <sbw@sbw.org>
- * @copyright 2009 Digg.com, Inc.
+ * @author    Bill Shupp <hostmaster@shupp.org>
+ * @copyright 2010 Digg.com, Inc.
  * @license   http://www.opensource.org/licenses/bsd-license.php BSD
  * @version   CVS: $Id:$
  * @link      http://pear.php.net/package/File_Mogile
@@ -33,6 +34,7 @@ require_once 'File/Mogile/Exception.php';
  * @category File
  * @package  File_Mogile
  * @author   Steve Williams <sbw@sbw.org>
+ * @author   Bill Shupp <hostmaster@shupp.org>
  * @license  http://www.opensource.org/licenses/bsd-license.php BSD
  * @link     http://pear.php.net/package/File_Mogile
  */
@@ -46,12 +48,22 @@ class File_Mogile
     public static $socketTimeout = 0.01;
 
     /**
-     * Timeout for each stream read from tracker.
-     * Currently, this timeout is deactivated.  See below.
+     * Timeout for each stream read from tracker.  This is combined with
+     * {$streamTimeoutMicroSeconds}
      *
-     * @var float $streamTimeout Timeout in seconds, default 1.0.
+     * @see stream_set_timeout(), $streamTimeoutMicroSeconds
+     * @var int $streamTimeoutSeconds Stream timeout in seconds, default 1
      */
-    public static $streamTimeout = 1.0;
+    public static $streamTimeoutSeconds = 1;
+
+    /**
+     * Timeout for each stream read from tracker in microseconds.
+     * This is combined with {$streamTimeoutSeconds}
+     *
+     * @see stream_set_timeout(), $streamTimeoutSeconds
+     * @var int $streamTimeoutMicroSeconds Stream timeout in microseconds, default 0
+     */
+    public static $streamTimeoutMicroSeconds = 0;
 
     /**
      * Timeout for commands to MogileFS.
@@ -99,8 +111,11 @@ class File_Mogile
                 case 'socketTimeout':
                     self::$socketTimeout = floatval($value);
                     break;
-                case 'streamTimeout':
-                    self::$streamTimeout = floatval($value);
+                case 'streamTimeoutSeconds':
+                    self::$streamTimeoutSeconds = (int) $value;
+                    break;
+                case 'streamTimeoutMicroSeconds':
+                    self::$streamTimeoutMicroSeconds = (int) $value;
                     break;
                 case 'commandTimeout':
                     self::$commandTimeout = intval($value);
@@ -141,17 +156,9 @@ class File_Mogile
 
             if ($this->_socket) {
                 // Set stream timeout
-                $timeoutParts = explode('.', self::$streamTimeout);
-                if (is_array($timeoutParts) && count($timeoutParts) == 2) {
-                    $timeoutSeconds      = (int) $timeoutParts[0];
-                    $timeoutMicroSeconds = (int) $timeoutParts[1];
-                } else {
-                    $timeoutSeconds      = 1;
-                    $timeoutMicroSeconds = 0;
-                }
                 stream_set_timeout($this->_socket,
-                                   $timeoutSeconds,
-                                   $timeoutMicroSeconds);
+                                   self::$streamTimeoutSeconds,
+                                   self::$streamTimeoutMicroSeconds);
                 return;
             }
         }

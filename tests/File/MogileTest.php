@@ -99,20 +99,23 @@ class File_MogileTest extends PHPUnit_Framework_TestCase
      */
     public function testConstructor()
     {
-        $socketTimeout  = 1.1;
-        $streamTimeout  = 1.2;
-        $commandTimeout = 4;
+        $socketTimeout             = 1.1;
+        $streamTimeoutSeconds      = 1;
+        $streamTimeoutMicroSeconds = 200;
+        $commandTimeout            = 4;
 
-        $options = array('socketTimeout'  => $socketTimeout,
-                         'streamTimeout'  => $streamTimeout,
-                         'commandTimeout' => $commandTimeout);
+        $options = array('socketTimeout'             => $socketTimeout,
+                         'streamTimeoutSeconds'      => $streamTimeoutSeconds,
+                         'streamTimeoutMicroSeconds' => $streamTimeoutMicroSeconds,
+                         'commandTimeout'            => $commandTimeout);
 
         $object = $this->getMock('File_Mogile',
                                  $this->methods,
                                  array($this->hosts, 'production', $options));
 
         $this->assertSame($socketTimeout, File_Mogile::$socketTimeout);
-        $this->assertSame($streamTimeout, File_Mogile::$streamTimeout);
+        $this->assertSame($streamTimeoutSeconds, File_Mogile::$streamTimeoutSeconds);
+        $this->assertSame($streamTimeoutMicroSeconds, File_Mogile::$streamTimeoutMicroSeconds);
         $this->assertSame($commandTimeout, File_Mogile::$commandTimeout);
     }
 
