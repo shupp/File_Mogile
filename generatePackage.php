@@ -30,7 +30,7 @@ $packagexml->setReleaseStability('alpha');
 
 $packagexml->setAPIStability('alpha');
 
-$packagexml->setNotes('* Initial release');
+$packagexml->setNotes('* Added stream timeout support');
 $packagexml->setPackageType('php');
 $packagexml->addRelease();
 
